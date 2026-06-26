@@ -1,2 +1,81 @@
-# machine-learning
-By combining layoff events of technology companies, GDELT news sentiment data, and macro labor indicators, this study investigates whether news sentiment and the intensity of layoff-related news can provide forward-looking signals for the technology labor market and support subsequent machine learning prediction modeling.
+# 情绪与现实的博弈：基于多模态数据的科技劳动力市场前瞻信息研究
+
+本项目研究科技公司裁员事件、GDELT 新闻情绪数据与宏观劳动力指标之间的关系，核心问题是：新闻情绪与裁员相关新闻强度是否能够为科技劳动力市场提供前瞻信号，并在机器学习预测模型中提升对未来裁员事件的预测能力。
+
+项目最终形成了从数据获取、清洗、周度面板构建、时滞相关检验、回归分析、异质性检验到预测建模的完整流程。整体结论是：裁员相关新闻强度对未来 1-2 周科技裁员事件具有一定领先关联，尤其是 `weekly_layoff_news_count` 和 `weekly_layoff_news_share` 表现更稳定；但新闻变量对预测模型的增益有限且不稳定，因此更适合作为解释机制和辅助预警信号，而不是单独的稳定预测器。
+
+## 研究问题
+
+1. 新闻情绪和裁员相关新闻强度是否领先科技公司裁员事件？
+2. 加入新闻情绪、多模态新闻特征后，是否能提升未来裁员事件的机器学习预测效果？
+3. AI 公司与非 AI 科技公司的裁员新闻响应机制是否存在差异？
+
+## 项目亮点
+
+- 构建了覆盖 2022-2026 年的科技裁员周度面板，融合裁员事件、GDELT 新闻、VADER 情绪得分与宏观劳动力指标。
+- 使用 GDELT 爬取并清洗 160,711 条相关新闻记录，其中包含 14,841 条裁员相关新闻。
+- 将原始裁员人数目标调整为更稳定的“每周发生裁员的事件数”，降低缺失值和极端值对预测任务的影响。
+- 通过 TLCC、OLS-HAC、Poisson、Negative Binomial、Random Forest、Ablation 和 Robustness Check 多角度验证新闻信号。
+- 对 AI 公司与非 AI 公司进行异质性检验，发现两类公司的裁员新闻响应节奏不同。
+
+## 主要结论
+
+裁员相关新闻强度与未来科技裁员事件存在显著的领先关联。TLCC 结果显示，`weekly_layoff_news_count` 在 lag0、lag1、lag2 均与未来裁员事件显著正相关，其中 lag1 和 lag2 说明新闻信号可能提前 1-2 周反映劳动力市场压力。
+
+回归结果进一步支持新闻强度变量的解释作用。OLS-HAC 中 lag1 和 lag2 的系数为正且接近显著；Poisson 回归中 lag1 显著为正，说明裁员相关新闻越密集，下一阶段裁员事件发生频率越高。
+
+预测模型层面，新闻变量带来的提升较为有限。固定模型比较中，Macro Only 的 Random Forest 表现最好；改进后的 Macro + Core News 模型在 RMSE 上有一定改善，但 MAE 未同步改善。因此项目结论不是“新闻可以稳定预测裁员”，而是“新闻强度能够提供有解释价值的提前信号，并可作为预测模型的辅助变量”。
+
+异质性检验显示，AI 公司与非 AI 公司都与裁员新闻强度相关，但响应节奏不同：AI 公司在领先两周时相关性更强，非 AI 公司在领先一周时更强。这说明两类公司可能并非同一种新闻响应机制。AI 公司更可能受到资本预期、技术路线调整和融资环境变化的提前影响；非 AI 科技公司更可能受到现实经营压力、成本削减和已发生组织调整的短期新闻反映。
+
+## 成员分工
+
+| 成员 | 主要负责内容 | 代表性文件 |
+| --- | --- | --- |
+| 倪菁霖 A | GDELT 新闻获取、VADER 情绪打分、数据清洗、周度面板构建、特征工程、数据质量报告 | `倪菁霖-机器学习A/news_catch.ipynb`、`倪菁霖-机器学习A/member_A_data_pipeline.ipynb`、`倪菁霖-机器学习A/A_outputs/data_pipeline.py` |
+| 裴一帆 B | TLCC 时滞相关、回归检验、预测模型比较、稳健性检验、AI/非 AI 异质性分析 | `裴一帆—机器学习B/02_code/03_memberB_tlcc_regression_modeling_fixed.ipynb` |
+| 张蕊 C | RQ2 预测建模复现、特征组对比、训练/验证/测试划分、模型性能表和图 | `张蕊-机器学习C/张蕊-机器学习C/张蕊_RQ2_C1-C5_建模复现.ipynb` |
+
+更详细的成员贡献见 `CONTRIBUTORS.md`。
+
+## 仓库结构
+
+```text
+.
+├── README.md
+├── CONTRIBUTORS.md
+├── PROJECT_STRUCTURE.md
+├── RESULTS_SUMMARY.md
+├── GITHUB_UPLOAD_GUIDE.md
+├── requirements.txt
+├── 倪菁霖-机器学习A/
+├── 裴一帆—机器学习B/
+└── 张蕊-机器学习C/
+```
+
+## 复现方式
+
+建议使用 Python 3.9 或以上版本，并安装 `requirements.txt` 中的依赖。
+
+```bash
+pip install -r requirements.txt
+```
+
+推荐复现顺序：
+
+1. 运行 `倪菁霖-机器学习A/news_catch.ipynb`，获取并初步清洗 GDELT 新闻数据。
+2. 运行 `倪菁霖-机器学习A/member_A_data_pipeline.ipynb` 或 `倪菁霖-机器学习A/A_outputs/data_pipeline.py`，生成周度面板、目标变量、特征字典和图表。
+3. 运行 `裴一帆—机器学习B/02_code/03_memberB_tlcc_regression_modeling_fixed.ipynb`，复现时滞相关、回归、预测、消融、稳健性和异质性检验。
+4. 运行 `张蕊-机器学习C/张蕊-机器学习C/张蕊_RQ2_C1-C5_建模复现.ipynb`，复现 RQ2 预测建模结果。
+
+## 结果文件
+
+- A 组输出：`倪菁霖-机器学习A/A_outputs/`
+- B 组结果表：`裴一帆—机器学习B/04_results/`
+- B 组图表：`裴一帆—机器学习B/03_figures/`
+- B 组报告文本：`裴一帆—机器学习B/05_report_text/`
+- C 组结果表和图：`张蕊-机器学习C/张蕊-机器学习C/`
+
+## 说明
+
+本项目用于机器学习课程研究与展示。由于部分数据来源于公开数据集和 GDELT 查询结果，若重新运行数据爬取步骤，结果可能因新闻库更新而与当前输出略有差异。课程报告建议优先引用已固定保存的 `_fixed` 结果文件。
